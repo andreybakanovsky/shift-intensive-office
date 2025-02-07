@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=office'
+      - 'POSTGRES_PASSWORD=office_pass'
+      - 'POSTGRES_USER=office_user'
+    ports:
+      - '5432'
