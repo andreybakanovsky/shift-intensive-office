@@ -22,7 +22,7 @@ public class DepartmentController {
     @GetMapping
     public ResponseEntity<Page<GetDepartmentDTO>> getAllDepartments(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "3") int size
+            @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Department> departmentPage = departmentRepository.findAll(pageable);
