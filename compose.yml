@@ -1,9 +1,31 @@
 services:
   postgres:
-    image: 'postgres:latest'
+    image: 'postgres:15'
+    container_name: office_postgres
+    restart: always
     environment:
-      - 'POSTGRES_DB=office'
-      - 'POSTGRES_PASSWORD=office_pass'
-      - 'POSTGRES_USER=office_user'
+      - POSTGRES_DB=office
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
     ports:
       - '5432'
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: office_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/office
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+    ports:
+      - "8080:8080"
