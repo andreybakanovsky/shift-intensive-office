@@ -1,5 +1,6 @@
 package by.koronatech.office.core.service;
 
+import by.koronatech.office.core.service.mapper.department.GetDepartmentMapper;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
@@ -15,13 +16,12 @@ import by.koronatech.office.core.repository.DepartmentRepository;
 @RequiredArgsConstructor
 public class DepartmentService {
     private final DepartmentRepository departmentRepository;
+    private final GetDepartmentMapper getDepartmentMapper;
 
     public Page<GetDepartmentDTO> getDepartments(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Department> departmentPage = departmentRepository.findAll(pageable);
 
-        return departmentPage.map(department ->
-                new GetDepartmentDTO(department.getId(), department.getName())
-        );
+        return getDepartmentMapper.toPage(departmentPage);
     }
 }

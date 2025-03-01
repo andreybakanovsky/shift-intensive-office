@@ -1,7 +1,6 @@
 package by.koronatech.office.core.service;
 
 import java.util.Optional;
-
 import jakarta.persistence.EntityNotFoundException;
 
 import lombok.RequiredArgsConstructor;
@@ -10,12 +9,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import by.koronatech.office.api.dto.EmployeeDTO;
-import by.koronatech.office.api.dto.GetEmployeeDTO;
+import by.koronatech.office.api.dto.employee.GetEmployeeDTO;
+import by.koronatech.office.api.dto.employee.CreateEmployeeDTO;
+import by.koronatech.office.api.dto.employee.UpdateEmployeeDTO;
 import by.koronatech.office.core.entity.Department;
 import by.koronatech.office.core.entity.Employee;
 import by.koronatech.office.core.repository.DepartmentRepository;
 import by.koronatech.office.core.repository.EmployeeRepository;
+import by.koronatech.office.core.service.mapper.employee.CreateEmployeeMapper;
+import by.koronatech.office.core.service.mapper.employee.GetEmployeeMapper;
+import by.koronatech.office.core.service.mapper.employee.UpdateEmployeeMapper;
 
 
 @Service
@@ -23,70 +26,47 @@ import by.koronatech.office.core.repository.EmployeeRepository;
 public class EmployeeService {
     private final DepartmentRepository departmentRepository;
     private final EmployeeRepository employeeRepository;
+    private final GetEmployeeMapper getEmployeeMapper;
+    private final CreateEmployeeMapper createEmployeeMapper;
+    private final UpdateEmployeeMapper updateEmployeeMapper;
 
     public Page<GetEmployeeDTO> getDepartmentEmployees(long departmentId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Employee> departmentEmployees = employeeRepository.findByDepartmentId(departmentId, pageable);
 
-        return departmentEmployees.map(employee -> new GetEmployeeDTO(
-                employee.getId(),
-                employee.getName(),
-                employee.getSalary(),
-                employee.getDepartment().getName(),
-                employee.isManager()
-        ));
+        return getEmployeeMapper.toPage(departmentEmployees);
     }
 
-    public GetEmployeeDTO createEmployee(Long departmentId, EmployeeDTO employeeDTO) {
+    public GetEmployeeDTO create(Long departmentId, CreateEmployeeDTO createEmployeeDTO) {
         Department department = findDepartment(departmentId);
-        employeeDTO.setDepartmentId(departmentId);
+        createEmployeeDTO.setDepartmentId(departmentId);
 
-        if (employeeDTO.getIsManager()) {
+        if (createEmployeeDTO.getIsManager())
             dismissManager(department);
-        }
 
-        Employee newEmployee = new Employee();
-        newEmployee.setDepartment(department);
-        newEmployee.setName(employeeDTO.getName());
-        newEmployee.setSalary(employeeDTO.getSalary());
-        newEmployee.setIsManager(employeeDTO.getIsManager());
+        Employee newEmployee = createEmployeeMapper.toEntity(createEmployeeDTO);
         employeeRepository.save(newEmployee);
 
-        return new GetEmployeeDTO(
-                newEmployee.getId(),
-                newEmployee.getName(),
-                newEmployee.getSalary(),
-                newEmployee.getDepartment().getName(),
-                newEmployee.getIsManager());
+        return getEmployeeMapper.toDto(newEmployee);
     }
 
-    public GetEmployeeDTO updateEmployee(long departmentId, long id, EmployeeDTO employeeDTO) {
-        Employee employee = findEmployee(id);
-        Department newDepartment = null;
+    public GetEmployeeDTO update(long employeeId, UpdateEmployeeDTO updateEmployeeDTO) {
+        Employee employee = findEmployee(employeeId);
 
-        if (employeeDTO.getName() != null && !employeeDTO.getName().isEmpty())
-            employee.setName(employeeDTO.getName());
-
-        if (employeeDTO.getSalary() != null) employee.setSalary(employeeDTO.getSalary());
-
-        if (employeeDTO.getDepartmentId() != null &&
-                employeeDTO.getDepartmentId() != departmentId) {
-            newDepartment = findDepartment(employeeDTO.getDepartmentId());
-            employee.setDepartment(newDepartment);
+        if(updateEmployeeDTO.getDepartmentId() != null &&
+                !updateEmployeeDTO.getDepartmentId().equals(employee.getDepartment().getId())) {
+            Department department = findDepartment(updateEmployeeDTO.getDepartmentId());
+            employee.setDepartment(department);
         }
 
-        if (employeeDTO.getIsManager() != null) {
-            if (employeeDTO.getIsManager()) dismissManager(newDepartment);
-            employee.setIsManager(employeeDTO.getIsManager());
+        Employee saveEmployee = updateEmployeeMapper.merge(employee, updateEmployeeDTO);
+
+        if (updateEmployeeDTO.getIsManager() != null) {
+            if (updateEmployeeDTO.getIsManager()) dismissManager(saveEmployee.getDepartment());
+            employee.setIsManager(updateEmployeeDTO.getIsManager());
         }
 
-        employeeRepository.save(employee);
-        return new GetEmployeeDTO(
-                employee.getId(),
-                employee.getName(),
-                employee.getSalary(),
-                employee.getDepartment().getName(),
-                employee.getIsManager());
+        return getEmployeeMapper.toDto(employeeRepository.save(saveEmployee));
     }
 
     private void dismissManager(Department department) {
