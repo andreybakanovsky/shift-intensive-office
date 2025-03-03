@@ -1,13 +1,12 @@
 package by.koronatech.office.api.dto.employee;
 
-import java.math.BigDecimal;
-
+import by.koronatech.office.core.entity.Department;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import by.koronatech.office.core.entity.Department;
+import java.math.BigDecimal;
 
 @Setter
 @Getter

@@ -1,16 +1,14 @@
 package by.koronatech.office.api.controller;
 
+import by.koronatech.office.api.dto.employee.CreateEmployeeDTO;
+import by.koronatech.office.api.dto.employee.GetEmployeeDTO;
+import by.koronatech.office.api.dto.employee.UpdateEmployeeDTO;
+import by.koronatech.office.core.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import by.koronatech.office.api.dto.employee.CreateEmployeeDTO;
-import by.koronatech.office.api.dto.employee.UpdateEmployeeDTO;
-import by.koronatech.office.api.dto.employee.GetEmployeeDTO;
-import by.koronatech.office.core.service.EmployeeService;
 
 @RestController
 @RequiredArgsConstructor

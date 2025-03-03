@@ -1,16 +1,14 @@
 package by.koronatech.office.core.service;
 
+import by.koronatech.office.api.dto.GetDepartmentDTO;
+import by.koronatech.office.core.entity.Department;
+import by.koronatech.office.core.repository.DepartmentRepository;
 import by.koronatech.office.core.service.mapper.department.GetDepartmentMapper;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import by.koronatech.office.api.dto.GetDepartmentDTO;
-import by.koronatech.office.core.entity.Department;
-import by.koronatech.office.core.repository.DepartmentRepository;
 
 @Service
 @RequiredArgsConstructor

@@ -1,19 +1,7 @@
 package by.koronatech.office.core.service;
 
-import java.util.Optional;
-
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
-import by.koronatech.office.api.dto.employee.GetEmployeeDTO;
 import by.koronatech.office.api.dto.employee.CreateEmployeeDTO;
+import by.koronatech.office.api.dto.employee.GetEmployeeDTO;
 import by.koronatech.office.api.dto.employee.UpdateEmployeeDTO;
 import by.koronatech.office.core.entity.Department;
 import by.koronatech.office.core.entity.Employee;
@@ -22,6 +10,16 @@ import by.koronatech.office.core.repository.EmployeeRepository;
 import by.koronatech.office.core.service.mapper.employee.CreateEmployeeMapper;
 import by.koronatech.office.core.service.mapper.employee.GetEmployeeMapper;
 import by.koronatech.office.core.service.mapper.employee.UpdateEmployeeMapper;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
