@@ -7,6 +7,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import by.koronatech.office.core.entity.Department;
+
 @Setter
 @Getter
 @EqualsAndHashCode
@@ -15,5 +17,5 @@ public class CreateEmployeeDTO {
     private String name;
     private BigDecimal salary;
     private Boolean isManager;
-    private Long departmentId;
+    private Department department; // the reason is the department name requirement in the task
 }

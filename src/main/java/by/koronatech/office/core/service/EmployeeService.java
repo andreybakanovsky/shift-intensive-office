@@ -39,7 +39,7 @@ public class EmployeeService {
 
     public GetEmployeeDTO create(Long departmentId, CreateEmployeeDTO createEmployeeDTO) {
         Department department = findDepartment(departmentId);
-        createEmployeeDTO.setDepartmentId(departmentId);
+        createEmployeeDTO.setDepartment(department);
 
         if (createEmployeeDTO.getIsManager())
             dismissManager(department);
