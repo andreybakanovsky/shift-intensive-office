@@ -1,12 +1,16 @@
 package by.koronatech.office.core.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.math.BigDecimal;
 
-@Getter
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+
 @Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -17,16 +21,22 @@ public class Employee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Can't be empty")
+    @Size(min = 2, max = 30, message = "Should contain between 2 and 30 characters")
     @Column(nullable = false)
     private String name;
 
+    @NotNull(message = "Should exist")
+    @Positive(message = "Should be greater than 0")
+    @Column(nullable = false, columnDefinition = "DECIMAL(10,2) DEFAULT 0.00")
     private BigDecimal salary;
 
     @ManyToOne
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
 
-    private Boolean isManager;
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isManager = false;
 
     public boolean isManager() {
         return isManager;

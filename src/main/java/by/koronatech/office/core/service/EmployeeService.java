@@ -1,7 +1,10 @@
 package by.koronatech.office.core.service;
 
 import java.util.Optional;
+
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,7 +23,6 @@ import by.koronatech.office.core.service.mapper.employee.CreateEmployeeMapper;
 import by.koronatech.office.core.service.mapper.employee.GetEmployeeMapper;
 import by.koronatech.office.core.service.mapper.employee.UpdateEmployeeMapper;
 
-
 @Service
 @RequiredArgsConstructor
 public class EmployeeService {
@@ -37,11 +39,11 @@ public class EmployeeService {
         return getEmployeeMapper.toPage(departmentEmployees);
     }
 
-    public GetEmployeeDTO create(Long departmentId, CreateEmployeeDTO createEmployeeDTO) {
+    public GetEmployeeDTO create(Long departmentId, @Valid CreateEmployeeDTO createEmployeeDTO) {
         Department department = findDepartment(departmentId);
         createEmployeeDTO.setDepartment(department);
 
-        if (createEmployeeDTO.getIsManager())
+        if (createEmployeeDTO.getIsManager() != null && createEmployeeDTO.getIsManager())
             dismissManager(department);
 
         Employee newEmployee = createEmployeeMapper.toEntity(createEmployeeDTO);
@@ -50,7 +52,8 @@ public class EmployeeService {
         return getEmployeeMapper.toDto(newEmployee);
     }
 
-    public GetEmployeeDTO update(long employeeId, UpdateEmployeeDTO updateEmployeeDTO) {
+    @Transactional
+    public GetEmployeeDTO update(long employeeId, @Valid UpdateEmployeeDTO updateEmployeeDTO) {
         Employee employee = findEmployee(employeeId);
 
         if(updateEmployeeDTO.getDepartmentId() != null &&
