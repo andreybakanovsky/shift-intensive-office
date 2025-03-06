@@ -1,99 +1,50 @@
 package by.koronatech.office.api.controller;
 
-import by.koronatech.office.api.dto.EmployeeDTO;
-import by.koronatech.office.api.dto.GetEmployeeDTO;
+import by.koronatech.office.api.dto.employee.CreateEmployeeDTO;
+import by.koronatech.office.api.dto.employee.GetEmployeeDTO;
+import by.koronatech.office.api.dto.employee.UpdateEmployeeDTO;
 import by.koronatech.office.core.service.EmployeeService;
-
-import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
 
 @RestController
-@RequestMapping("/departments/{departmentId}/employees")
-@Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class EmployeeController {
     private final EmployeeService employeeService;
 
-    @GetMapping
+    @GetMapping("/departments/{departmentId}/employees")
     public ResponseEntity<Page<GetEmployeeDTO>> getDepartmentEmployees(
             @PathVariable long departmentId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id,asc") String sort
-    ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sort.split(",")[0]).ascending());
-
-        Page<GetEmployeeDTO> employees = employeeService.getDepartmentEmployees(departmentId, pageable);
-        return ResponseEntity.ok(employees);
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(employeeService.getDepartmentEmployees(departmentId, page, size));
     }
 
-    @PostMapping
-    public ResponseEntity<?> createEmployee(@PathVariable Long departmentId,
-                                            @RequestBody EmployeeDTO employeeDTO) {
-        employeeDTO.setDepartmentId(departmentId);
-        try {
-            GetEmployeeDTO newEmployee = employeeService.createEmployee(employeeDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(newEmployee);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    @PostMapping("/departments/{departmentId}/employees")
+    public ResponseEntity<GetEmployeeDTO> create(@PathVariable Long departmentId,
+                                                 @RequestBody CreateEmployeeDTO createEmployeeDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(employeeService.create(departmentId, createEmployeeDTO));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateEmployee(@PathVariable Long departmentId,
-                                            @PathVariable Long id,
-                                            @RequestBody EmployeeDTO employeeDTO) {
-        try {
-            GetEmployeeDTO employee = employeeService.updateEmployee(departmentId, id, employeeDTO);
-            // в случае перевода сотрудника в другой отдел
-            if (employeeDTO.getDepartmentId() != null &&
-                    !employeeDTO.getDepartmentId().equals(departmentId)) {
-                URI newDepartmentPath = ServletUriComponentsBuilder
-                        .fromCurrentContextPath()
-                        .path("/departments/{newDepartmentId}/employees/{id}")
-                        .buildAndExpand(employeeDTO.getDepartmentId(), id)
-                        .toUri();
-                return ResponseEntity.status(HttpStatus.SEE_OTHER) // 303
-                        .location(newDepartmentPath)
-                        .body(employee);
-            } else return ResponseEntity.status(HttpStatus.OK).body(employee);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    @PutMapping("/employees/{id}")
+    public ResponseEntity<GetEmployeeDTO> update(@PathVariable Long id,
+                                                 @RequestBody UpdateEmployeeDTO updateEmployeeDTO) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(employeeService.update(id, updateEmployeeDTO));
     }
 
-    @PatchMapping("/{id}/assign-manager")
-    public ResponseEntity<String> assignManager(@PathVariable long departmentId,
-                                                @PathVariable long id) {
-        try {
-            employeeService.assignManager(departmentId, id);
-            return ResponseEntity.ok("Сотрудник c id= " + id + " назначен менеджером.");
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    @PatchMapping("/departments/{departmentId}/employees/{id}/appoint-manager")
+    public ResponseEntity<String> appointAsManager(@PathVariable long departmentId, @PathVariable long id) {
+        employeeService.appointAsManager(departmentId, id);
+        return ResponseEntity.ok("Employee with id= " + id + " was assigned as a manager.");
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEmployee(@PathVariable long departmentId,
-                                               @PathVariable long id) {
+    @DeleteMapping("/employees/{id}")
+    public ResponseEntity<Void> delete(@PathVariable long id) {
         employeeService.deleteEmployee(id);
         return ResponseEntity.noContent().build();
     }

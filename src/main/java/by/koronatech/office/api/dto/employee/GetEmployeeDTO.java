@@ -1,20 +1,20 @@
-package by.koronatech.office.api.dto;
+package by.koronatech.office.api.dto.employee;
 
-import lombok.Getter;
-import lombok.Setter;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
-@Getter
 @Setter
+@Getter
 @EqualsAndHashCode
 @AllArgsConstructor
-
-public class EmployeeDTO {
+public class GetEmployeeDTO {
+    private Long id;
     private String name;
     private BigDecimal salary;
-    private Long departmentId;
+    private String departmentName;
     private Boolean isManager;
 }
